@@ -52,14 +52,29 @@ class qformat_xmlrgx extends qformat_default {
     /** @var array Array of files for feedback to question answers. */
     protected $feedbackfiles = [];
 
+    /**
+     * Provides the import functionality.
+     *
+     * @return bool True if import is provided.
+     */
     public function provide_import() {
         return true;
     }
 
+    /**
+     * Provides the export functionality.
+     *
+     * @return bool False if export is not provided.
+     */
     public function provide_export() {
         return false;
     }
 
+    /**
+     * Returns the MIME type for XML.
+     *
+     * @return string The MIME type 'application/xml'.
+     */
     public function mime_type() {
         return 'application/xml';
     }
@@ -168,6 +183,16 @@ class qformat_xmlrgx extends qformat_default {
         return $xml;
     }
 
+    /**
+     * Imports text with associated files.
+     *
+     * @param string $data The text data.
+     * @param string $path The file path.
+     * @param string $defaultvalue The default value (default: '').
+     * @param string $defaultformat The text format (default: 'html').
+     *
+     * @return void
+     */
     public function import_text_with_files($data, $path, $defaultvalue = '', $defaultformat = 'html') {
         $field  = [];
         $field['text'] = $this->getpath($data,
@@ -182,6 +207,13 @@ class qformat_xmlrgx extends qformat_default {
         return $field;
     }
 
+    /**
+     * Imports files as a draft from XML data.
+     *
+     * @param string $xml The XML data.
+     *
+     * @return void
+     */
     public function import_files_as_draft($xml) {
         global $USER;
         if (empty($xml)) {
@@ -227,8 +259,6 @@ class qformat_xmlrgx extends qformat_default {
         $qo->name = $this->clean_question_name($this->getpath($question,
                 ['#', 'name', 0, '#', 'text', 0, '#'], '', true,
                 get_string('xmlimportnoname', 'qformat_xmlrgx')));
-        //$questiontext = $this->import_text_with_files($question,
-        //        ['#', 'questiontext', 0]);
         if ($this->key_exists_recursive('questiontextrgx', $question)) {
             $questiontext = $this->import_text_with_files($question,
                 ['#', 'questiontextrgx', 0]);
@@ -582,11 +612,6 @@ class qformat_xmlrgx extends qformat_default {
     public function import_multianswerrgx($question) {
         global $USER;
         question_bank::get_qtype('multianswerrgx');
-        echo '<pre>';
-        print_r($question);
-        echo '</pre>';
-        // Provide 2 possibilities for import according to the export method used!
-        // TODO review this only use for multianswerrgx questions!
         if ($this->key_exists_recursive('questiontextrgx', $question)) {
             $questiontext = $this->import_text_with_files($question,
                 ['#', 'questiontextrgx', 0]);
@@ -1107,6 +1132,7 @@ class qformat_xmlrgx extends qformat_default {
     }
 
     /**
+     * Import questions.
      * @param array $xml the xmlized xml
      * @return stdClass[] question objects to pass to question type save_question_options
      */
@@ -1126,6 +1152,7 @@ class qformat_xmlrgx extends qformat_default {
     }
 
     /**
+     * Import question.
      * @param array $questionxml xml describing the question
      * @return null|stdClass an object with data to be fed to question type save_question_options
      */
@@ -1174,11 +1201,7 @@ class qformat_xmlrgx extends qformat_default {
         }
     }
 
-    // EXPORT FUNCTIONS START HERE.
-
-    public function export_file_extension() {
-        return '.xml';
-    }
+    // EXPORT FUNCTIONS START HERE. Removed by JR; not needed here.
 
     /**
      * Turn the internal question type name into a human readable form.
@@ -1222,18 +1245,22 @@ class qformat_xmlrgx extends qformat_default {
         }
     }
 
+    /**
+     * Checks if a key exists recursively in an array.
+     *
+     * @param mixed $key The key to check.
+     * @param array $array The array to search.
+     *
+     * @return bool True if the key exists, false otherwise.
+     */
     protected function key_exists_recursive($key, $array) {
-
         $stack = new SplStack();
         $stack->push($array);
-
         while (!$stack->isEmpty()) {
             $current = $stack->pop();
-
             if (array_key_exists($key, $current)) {
                 return true;
             }
-
             foreach ($current as $v) {
                 if (is_array($v)) {
                     $stack->push($v);

@@ -227,9 +227,15 @@ class qformat_xmlrgx extends qformat_default {
         $qo->name = $this->clean_question_name($this->getpath($question,
                 ['#', 'name', 0, '#', 'text', 0, '#'], '', true,
                 get_string('xmlimportnoname', 'qformat_xmlrgx')));
-                echo '$qo->name '.$qo->name;die;
-        $questiontext = $this->import_text_with_files($question,
+        //$questiontext = $this->import_text_with_files($question,
+        //        ['#', 'questiontext', 0]);
+        if ($this->key_exists_recursive('questiontextrgx', $question)) {
+            $questiontext = $this->import_text_with_files($question,
+                ['#', 'questiontextrgx', 0]);
+        } else {
+            $questiontext = $this->import_text_with_files($question,
                 ['#', 'questiontext', 0]);
+        }
         $qo->questiontext = $questiontext['text'];
         $qo->questiontextformat = $questiontext['format'];
         if (!empty($questiontext['itemid'])) {
@@ -574,10 +580,13 @@ class qformat_xmlrgx extends qformat_default {
      * @return object question object
      */
     public function import_multianswerrgx($question) {
-
         global $USER;
         question_bank::get_qtype('multianswerrgx');
+        echo '<pre>';
+        print_r($question);
+        echo '</pre>';
         // Provide 2 possibilities for import according to the export method used!
+        // TODO review this only use for multianswerrgx questions!
         if ($this->key_exists_recursive('questiontextrgx', $question)) {
             $questiontext = $this->import_text_with_files($question,
                 ['#', 'questiontextrgx', 0]);
